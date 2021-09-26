@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.noticeMapper">
+	
+	<select id="getNoticeList" resultType="model.Notice">
+		select seqno, admin_id, title, notice_date  
+		from (select a.*, rownum rn from
+				(select * from notice order by seqno desc) a
+				) 
+		where rn between #{startRow} and #{endRow}
+	</select>
+	<select id="getMaxSeqno" resultType="Integer">
+		select max(seqno) from notice
+	</select>
+	
+	<select id="getNoticeCount" resultType="Integer">
+		select count(*) from notice
+	</select>
+	
+	<select id="getNoticeRead" parameterType="Integer" resultType="model.Notice">
+		select * from notice where seqno = #{seqno}
+	</select>
+	
+	<insert id="putNotice" parameterType="model.Notice">
+		insert into notice values(#{seqno},#{admin_id},#{title},#{image_url},#{content},#{notice_date})	
+	</insert>
+	
+	<delete id="deleteNotice" parameterType="Integer">
+		delete from notice where seqno = #{seqno}
+	</delete>
+	
+	<update id="updateNotice" parameterType="model.Notice">
+		update notice set title=#{title}, image_url=#{image_url},
+			content=#{content} 
+		where seqno = #{seqno}
+	</update>
+	
+</mapper>

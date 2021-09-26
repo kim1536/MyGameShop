@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.qnaMapper">
+	<select id="getQnaList" parameterType="Integer" resultType="model.Qna">
+		select seqno, group_id, order_no, parent_seqno, reg_date, user_id, 
+			admin_id, email, image_url, title, content
+		from (select a.*, rownum rn from
+				(select * from qna order by group_id desc, order_no asc) a
+				) 
+		where rn between #{startRow} and #{endRow}
+	</select>
+	<select id="getQnaCount" resultType="Integer">
+		select count(*) from qna
+	</select>
+	
+	<update id="updateOrderNo" parameterType="model.Qna">
+	update qna set order_no = order_no + 1 
+	where group_id = #{group_id} and order_no >= #{order_no}
+	</update>
+	
+	<select id="selectRownumBySeqno" parameterType="Integer" resultType="Integer">
+	select rn from
+		(select q.*, rownum rn from 
+			(select seqno, group_id, order_no from qna
+				order by group_id desc, order_no asc) q
+		)
+	where seqno = #{seqno}
+	</select>
+	
+	<insert id="putQna" parameterType="model.Qna">
+		insert into qna values(#{seqno}, #{group_id}, #{order_no}, #{parent_seqno},
+			#{reg_date}, #{user_id}, #{admin_id}, #{email}, #{image_url}, #{title}, #{content})	
+	</insert>
+	<select id="getMaxGroupId" resultType="Integer">
+		select max(group_id) from qna
+	</select>
+	<select id="getMaxSeqno" resultType="Integer">
+		select max(seqno) from qna
+	</select>
+	
+	<select id="getQna" parameterType="Integer" resultType="model.Qna">
+		select * from qna where seqno = #{seqno}
+	</select>
+	
+	<update id="updateQna" parameterType="model.Qna">
+		update qna set title=#{title}, email=#{email},
+		image_url=#{image_url}, content=#{content}
+		where seqno = #{seqno}
+	</update>
+	<delete id="deleteQna" parameterType="Integer">
+		delete from qna where seqno = #{seqno}
+	</delete>
+</mapper>

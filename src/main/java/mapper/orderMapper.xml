@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0/EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.orderMapper">
+	<insert id="putOrder" parameterType="model.Order">
+		insert into order_info values(#{seqno},#{user_id},#{item_id},#{recipient_name},
+		#{recipient_address},#{quantity},#{total_price},#{order_com},#{condition},#{order_date})
+	</insert>
+	<select id="getMaxSeqnoOrder" resultType="Integer">
+		select max(seqno) from order_info
+	</select>
+	<select id="getOrder" parameterType="String" resultType="model.Order">
+		select * from order_info where user_id = #{user_id}
+	</select>
+		<select id="getOrderList" parameterType="Integer" resultType="model.Qna">
+		select *
+		from (select a.*, rownum rn from
+				(select * from order_info order by seqno desc) a
+				) 
+		where rn between #{startRow} and #{endRow}
+	</select>
+		<select id="getSeqnoCount" resultType="Integer">
+		select count(*) from order_info
+	</select>
+		<select id="selectRownumBySeqno" parameterType="Integer" resultType="Integer">
+	select rn from
+		(select q.*, rownum rn from 
+			(select seqno from order_info
+				order by seqno desc) q
+		)
+	where seqno = #{seqno}
+	</select>
+</mapper>

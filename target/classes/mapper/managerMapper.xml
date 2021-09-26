@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.managerMapper">
+	<select id="getItemList" parameterType="Integer" resultType="model.Item">
+		select * from
+		(select a.*, rownum rn from
+			(select * from item ) a
+		)
+		where rn between #{startRow} and #{endRow} 
+	</select>
+	<select id="getItemCount" resultType="Integer">
+		select count(*) from item
+	</select>
+	<delete id="deleteItem" parameterType="String">
+		delete from item where item_id = #{item_id}
+	</delete>
+	<update id="updateItem" parameterType="model.Item">
+		update item set item_name = #{item_name}, price=#{price}, context=#{context}
+		where item_id = #{item_id}
+	</update>
+	
+	<select id="getSalesList" parameterType="Integer" resultType="model.Sales">
+		select item_id, total_quantity, total_sales from
+		(select a.*, rownum rn from
+			(select item_id, sum(quantity)as total_quantity, sum(total_price) as total_sales
+				from order_info group by item_id order by total_sales desc
+		) a
+		)
+		where rn between #{startRow} and #{endRow} 
+	</select>
+	<select id="getSalesCount" resultType="Integer">
+		select count(*) from 
+		(select item_id,sum(quantity) from order_info group by item_id)
+	</select>
+	<select id="getTotalSales" resultType="Integer">
+		select sum(total_price) from order_info 
+	</select>
+	<select id="getRanking" parameterType="Integer" resultType="model.Ranking">
+		select rownum, o.item_id, item_name, picture_url, price
+		from item i, (select item_id, sum(quantity) as tq from order_info group by item_id order by tq desc) o	
+		where i.item_id = o.item_id
+		and rownum <![CDATA[<=]]> 10 
+	</select>
+</mapper>
+
+
+
+
+
+
+
